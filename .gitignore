@@ -3,3 +3,4 @@ metal*.sql
 tmp*
 *init.sql
 *main.sql
+names.sql
