@@ -3,6 +3,8 @@ metal*.sql
 tmp*
 *init.sql
 *main.sql
+*main.py
 names.sql
 .venv/
 .env/
+__pycache__/
