@@ -1,0 +1,2 @@
+//script adds a new attribute to all documents with attribute name='Holberton school' in a collection, named school
+db.school.update({'name': 'Holberton school'}, {$set : {'address': '972 Mission street'}}, {multi: true})
