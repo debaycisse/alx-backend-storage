@@ -4,3 +4,5 @@ tmp*
 *init.sql
 *main.sql
 names.sql
+.venv/
+.env/
