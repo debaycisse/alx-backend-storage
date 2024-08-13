@@ -13,4 +13,4 @@ def schools_by_topic(mongo_collection, topic):
     Returns:
         list of all school document that contains the topic
     """
-    return mongo_collection.find({'topics': topic})
+    return mongo_collection.find({'topics': {'$elemMatch': {'$eq': topic}}})
