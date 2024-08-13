@@ -1,4 +1,4 @@
-#!/usr/vin/env python3
+#!/usr/bin/env python3
 """This module houses the definition of a function, named schools_by_topic"""
 
 
