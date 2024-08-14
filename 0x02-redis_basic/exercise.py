@@ -9,14 +9,12 @@ from typing import Union
 class Cache:
     """This class writes a given string to Redis storage"""
 
-    data_types: Union = Union[bytes, str, int, float]
-
     def __init__(self):
         """Method creates an instance of Redis and empties it"""
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    def store(self, data: data_types) -> str:
+    def store(self, data: Union[bytes, str, int, float]) -> str:
         """Method stores a given data in redis, using
         randomly generated uuid as a key
 
