@@ -11,12 +11,12 @@ class Cache:
 
     data_types = Union[bytes, str, int, float]
 
-    def __init__(self: 'Cache') -> None:
+    def __init__(self) -> None:
         """Method creates an instance of Redis and empties it"""
         self._redis: redis.Redis = redis.Redis()
         self._redis.flushdb()
 
-    def store(self: 'Cache', data: data_types) -> str:
+    def store(self, data: data_types) -> str:
         """Method stores a given data in redis, using
         randomly generated uuid as a key
 
