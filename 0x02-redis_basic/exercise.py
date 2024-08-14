@@ -9,11 +9,11 @@ from typing import Union
 class Cache:
     """This class writes a given string to Redis storage"""
 
-    data_types = Union[bytes, str, int, float]
+    data_types: Union = Union[bytes, str, int, float]
 
-    def __init__(self) -> None:
+    def __init__(self):
         """Method creates an instance of Redis and empties it"""
-        self._redis: redis.Redis = redis.Redis()
+        self._redis = redis.Redis()
         self._redis.flushdb()
 
     def store(self, data: data_types) -> str:
@@ -26,6 +26,6 @@ class Cache:
         Returns:
             the randomly generated key, which is used for storing data
         """
-        k = str(uuid4())
+        k: str = str(uuid4())
         self._redis.set(k, data)
         return k
