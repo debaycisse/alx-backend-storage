@@ -19,6 +19,17 @@ def count_calls(method: Callable) -> Callable:
     """
     @wraps(method)
     def wrapper(self, *args, **kwargs):
+        """
+        wraps the passed method, executes it, returns
+        its output and counts its number of calls
+
+        Args:
+            args - the list of argument that is passed to the given method
+            kwargs - the list of keyword argument of the given method
+
+        Returns:
+            the output of the passed method
+        """
         k = method.__qualname__
         _redis = self._redis
         _redis.incr(k, amount=1)
@@ -43,6 +54,17 @@ def call_history(method: Callable) -> Callable:
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
+        """
+        wraps the passed method, stores its argument and output value in
+        a list, executes it and returns its output
+
+        Args:
+            args - list of arguments of the passed method
+            kwargs - list of keyword arguments of the passed method
+
+        Returns:
+            the output value of the given method
+        """
         _redis = self._redis
         _redis.rpush(_in, str(args))
         mt = method(self, *args, **kwargs)
@@ -117,3 +139,13 @@ class Cache:
         if value is not None and fn is not None:
             return fn(value)
         return value
+
+
+def replay(method: Callable) -> None:
+    """"""
+    @wraps
+    def wrapper(self, *args, **kwargs):
+        """
+        wraps the given method, retrieves its length
+        """
+
