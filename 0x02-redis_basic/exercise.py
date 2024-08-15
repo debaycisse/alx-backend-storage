@@ -7,7 +7,7 @@ from typing import Union, Callable, Any
 from functools import wraps
 
 
-def count_calls(method: Callable) -> Any:
+def count_calls(method: Callable) -> Callable:
     """
     increment a number everytime a method in Cache class is called
 
@@ -18,11 +18,11 @@ def count_calls(method: Callable) -> Any:
         the called method
     """
     @wraps(method)
-    def wrapper(*args, **kwargs):
-        k = Cache.store.__qualname__
-        _redis = redis.Redis(db=0)
+    def wrapper(self, *args, **kwargs):
+        k = method.__qualname__
+        _redis = self._redis
         _redis.incr(k, amount=1)
-        st = method(*args, **kwargs)
+        st = method(self, *args, **kwargs)
         return st
     return wrapper
 
