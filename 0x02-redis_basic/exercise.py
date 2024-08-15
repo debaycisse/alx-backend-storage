@@ -3,7 +3,28 @@
 
 import redis
 from uuid import uuid4
-from typing import Union, Callable
+from typing import Union, Callable, Any
+from functools import wraps
+
+
+def count_calls(method: Callable) -> Any:
+    """
+    increment a number everytime a method in Cache class is called
+
+    Args:
+        method - the called method
+
+    Returns:
+        the called method
+    """
+    @wraps(method)
+    def wrapper(*args, **kwargs):
+        k = Cache.store.__qualname__
+        _redis = redis.Redis(db=0)
+        _redis.incr(k, amount=1)
+        st = method(*args, **kwargs)
+        return st
+    return wrapper
 
 
 class Cache:
@@ -11,9 +32,10 @@ class Cache:
 
     def __init__(self):
         """Method creates an instance of Redis and empties it"""
-        self._redis = redis.Redis()
+        self._redis = redis.Redis(db=0)
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[bytes, str, int, float]) -> str:
         """Method stores a given data in redis, using
         randomly generated uuid as a key
