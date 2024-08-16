@@ -145,7 +145,14 @@ class Cache:
 
 
 def replay(method: Callable) -> None:
-    """"""
+    """
+    displays the number of times a passed method has been called.
+    It also diplays a list of both arguments and output of
+    the given method as well.
+
+    Args:
+        method - the method whose input and output are to be printed
+    """
     if hasattr(method, '__self__') and isinstance(method.__self__, Cache):
         r = redis.Redis(db=0)
         method_name: str = method.__qualname__
