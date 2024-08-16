@@ -3,7 +3,7 @@
 
 import redis
 from uuid import uuid4
-from typing import Union, Callable, Any
+from typing import Union, Callable, Any, List
 from functools import wraps
 
 
@@ -33,8 +33,8 @@ def count_calls(method: Callable) -> Callable:
         k = method.__qualname__
         _redis = self._redis
         _redis.incr(k, amount=1)
-        mt = method(self, *args, **kwargs)
-        return mt
+        method_output = method(self, *args, **kwargs)
+        return method_output
     return wrapper
 
 
@@ -49,8 +49,6 @@ def call_history(method: Callable) -> Callable:
     Returns:
         the passed function with its supplied arguments
     """
-    _in = f'{method.__qualname__}:inputs'
-    _out = f'{method.__qualname__}:outputs'
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
@@ -65,11 +63,12 @@ def call_history(method: Callable) -> Callable:
         Returns:
             the output value of the given method
         """
-        _redis = self._redis
-        _redis.rpush(_in, str(args))
-        mt = method(self, *args, **kwargs)
-        _redis.rpush(_out, mt)
-        return mt
+        _in = f'{method.__qualname__}:inputs'
+        _out = f'{method.__qualname__}:outputs'
+        self._redis.rpush(_in, str(args))
+        method_output = method(self, *args, **kwargs)
+        self._redis.rpush(_out, method_output)
+        return method_output
     return wrapper
 
 
@@ -93,8 +92,12 @@ class Cache:
         Returns:
             the randomly generated key, which is used for storing data
         """
-        k: str = str(uuid4())
-        self._redis.set(k, data)
+        accepted_types = [bytes, int, float, str]
+        if type(data) in accepted_types:
+            k: str = str(uuid4())
+            self._redis.set(k, data)
+        else:
+            raise TypeError('data must be either bytes, int, float or string')
         return k
 
     def get_str(self, data: bytes) -> str:
@@ -143,9 +146,17 @@ class Cache:
 
 def replay(method: Callable) -> None:
     """"""
-    @wraps
-    def wrapper(self, *args, **kwargs):
-        """
-        wraps the given method, retrieves its length
-        """
-
+    if hasattr(method, '__self__') and isinstance(method.__self__, Cache):
+        r = redis.Redis(db=0)
+        method_name: str = method.__qualname__
+        input_key: str = f'{method_name}:inputs'
+        output_key: str = f'{method_name}:outputs'
+        input_list = r.lrange(input_key, 0, -1)
+        output_list = r.lrange(output_key, 0, -1)
+        print(f'{method_name} was called {r.llen(input_key)} times:')
+        for _k, _v in zip(output_list, input_list):
+            print('{0}(*{1}) -> {2}'.
+                  format(method_name, _v.decode('utf-8'), _k.decode('utf-8'))
+                  )
+    else:
+        raise TypeError('method must belong to Cache class')
